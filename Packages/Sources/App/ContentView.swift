@@ -9,10 +9,12 @@ import SwiftUI
 import RealityKit
 
 @MainActor
-struct ContentView: View {
-    @State var model: Model
+public struct ContentView: View {
+    @State var model: Model = .instance
 
-    var body: some View {
+    public init() { }
+
+    public var body: some View {
         VStack {
             if model.state == .capturing {
                 ObjectCaptureView(session: model.session)
@@ -22,4 +24,8 @@ struct ContentView: View {
         }
         .ignoresSafeArea()
     }
+}
+
+extension Model {
+    static let instance: Model = .init()
 }

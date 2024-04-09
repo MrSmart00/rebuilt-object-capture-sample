@@ -6,15 +6,16 @@
 //
 
 import SwiftUI
+import App
 
 @main
-@MainActor
 struct SandboxApp: App {
-    let model = Model()
-    
+//    let model = Model()
+//    
     var body: some Scene {
         WindowGroup {
-            ContentView(model: model)
+//            ContentView(model: model)
+            ContentView()
         }
     }
 }
