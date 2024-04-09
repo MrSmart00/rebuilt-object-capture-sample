@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Capture
+import Common
 
 @MainActor
 public struct ContentView: View {
@@ -19,9 +20,8 @@ public struct ContentView: View {
             if model.state == .capturing {
                 CaptureView(model: model)
             } else {
-                Text("Loading...")
+                CircularProgressView()
             }
         }
-        .ignoresSafeArea()
     }
 }

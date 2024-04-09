@@ -10,11 +10,8 @@ import App
 
 @main
 struct SandboxApp: App {
-//    let model = Model()
-//    
     var body: some Scene {
         WindowGroup {
-//            ContentView(model: model)
             ContentView()
         }
     }
