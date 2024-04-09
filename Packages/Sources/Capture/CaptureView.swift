@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RealityKit
+import Common
 
 public struct CaptureView: View {
     @State var model: Model
@@ -16,6 +17,15 @@ public struct CaptureView: View {
     }
 
     public var body: some View {
-        ObjectCaptureView(session: model.session)
+        ZStack {
+            ObjectCaptureView(session: model.objectCaptureSession)
+                .ignoresSafeArea()
+                .id(model.objectCaptureSession.id)
+            if (!model.objectCaptureSession.isPaused && model.objectCaptureSession.cameraTracking == .normal) {
+                CaptureOverlayView {
+                    try? await model.startReconstruction()
+                }
+            }
+        }
     }
 }

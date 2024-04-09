@@ -8,11 +8,18 @@
 import Foundation
 import SwiftUI
 import RealityKit
+import os
 
 @Observable
 @MainActor
 public class Model {
-    let session: ObjectCaptureSession
+    private let logger = Logger(subsystem: "exam", category: "Model")
+    public static let instance: Model = .init()
+
+    private let folder = Folder()
+    var objectCaptureSession: ObjectCaptureSession
+    private var photogrammetrySession: PhotogrammetrySession?
+    
     public var state: State? {
         didSet {
             guard state != oldValue else {
@@ -22,40 +29,106 @@ public class Model {
         }
     }
     
-    public static let instance: Model = .init()
-    
     init() {
-        session = .init()
+        objectCaptureSession = .init()
+        attachListeners()
         state = .ready
     }
     
-    func perform(with state: State?) {
+    private func perform(with state: State?) {
         switch state {
         case .ready:
             print(state)
             startNewCapture()
         case .capturing:
             print(state)
-        case .none:
+        case .restart:
+            reset()
+        case .prepareToReconstruct, .reconstructing, .failed, .none:
             print(state)
         }
     }
     
-    func startNewCapture() {
+    private var tasks: [ Task<Void, Never> ] = []
+
+    @MainActor
+    private func attachListeners() {
+        logger.debug("Attaching listeners...")
+        let session = self.objectCaptureSession
+        
+        tasks.append(Task<Void, Never> { [weak self] in
+            for await newState in session.stateUpdates {
+                self?.logger.debug("Task got async state change to: \(String(describing: newState))")
+                self?.onStateChanged(newState: newState)
+            }
+            self?.logger.log("^^^ Got nil from stateUpdates iterator!  Ending observation task...")
+        })
+    }
+    
+    private func detachListeners() {
+        logger.debug("Detaching listeners...")
+        for task in tasks {
+            task.cancel()
+        }
+        tasks.removeAll()
+    }
+
+    private func onStateChanged(newState: ObjectCaptureSession.CaptureState) {
+        logger.info("ObjectCaptureSession switched to state: \(String(describing: newState))")
+        if case .completed = newState {
+            logger.log("ObjectCaptureSession moved to .completed state.  Switch app model to reconstruction...")
+            state = .prepareToReconstruct
+        } else if case let .failed(error) = newState {
+            logger.error("ObjectCaptureSession moved to error state \(String(describing: error))...")
+            if case ObjectCaptureSession.Error.cancelled = error {
+                state = .restart
+            } else {
+                state = .failed
+            }
+        }
+    }
+
+    func startReconstruction() throws {
+        logger.debug("startReconstruction() called.")
+
+        var configuration = PhotogrammetrySession.Configuration()
+        configuration.checkpointDirectory = folder.snapshotsFolder
+        photogrammetrySession = try PhotogrammetrySession(
+            input: folder.imagesFolder,
+            configuration: configuration
+        )
+
+        state = .reconstructing
+    }
+
+    private func reset() {
+        logger.info("reset() called...")
+        photogrammetrySession = nil
+        objectCaptureSession = .init()
+//        showPreviewModel = false
+//        orbit = .orbit1
+//        orbitState = .initial
+//        isObjectFlipped = false
+        state = .ready
+    }
+
+    private func startNewCapture() {
+        logger.log("startNewCapture() called...")
         if !ObjectCaptureSession.isSupported {
             preconditionFailure("ObjectCaptureSession is not supported on this device!")
         }
-        let folder = Folder()
         var configuration = ObjectCaptureSession.Configuration()
         configuration.checkpointDirectory = folder.snapshotsFolder
         configuration.isOverCaptureEnabled = true
-        session.start(
+        logger.log("Enabling overcapture...")
+        objectCaptureSession.start(
             imagesDirectory: folder.imagesFolder,
             configuration: configuration
         )
 
-        if case let .failed(error) = session.state {
-            print("Got error starting session! \(String(describing: error))")
+        if case let .failed(error) = objectCaptureSession.state {
+            logger.error("Got error starting session! \(String(describing: error))")
+            state = .failed
         } else {
             state = .capturing
         }
@@ -66,5 +139,9 @@ extension Model {
     public enum State {
         case ready
         case capturing
+        case prepareToReconstruct
+        case restart
+        case reconstructing
+        case failed
     }
 }
