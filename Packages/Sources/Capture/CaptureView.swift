@@ -23,7 +23,7 @@ public struct CaptureView: View {
                 .id(model.objectCaptureSession.id)
             if (!model.objectCaptureSession.isPaused && model.objectCaptureSession.cameraTracking == .normal) {
                 CaptureOverlayView {
-                    try? await model.startReconstruction()
+                    await model.start()
                 }
             }
         }

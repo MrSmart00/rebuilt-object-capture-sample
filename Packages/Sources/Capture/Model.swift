@@ -38,13 +38,10 @@ public class Model {
     private func perform(with state: State?) {
         switch state {
         case .ready:
-            print(state)
             startNewCapture()
-        case .capturing:
-            print(state)
         case .restart:
             reset()
-        case .prepareToReconstruct, .reconstructing, .failed, .none:
+        case .capturing, .prepareToReconstruct, .reconstructing, .failed, .none:
             print(state)
         }
     }
@@ -88,7 +85,19 @@ public class Model {
         }
     }
 
-    func startReconstruction() throws {
+    func start() {
+        logger.debug("startDetecting() called.")
+        let state = objectCaptureSession.state
+        if case .ready = state {
+            if !objectCaptureSession.startDetecting() {
+                self.state = .failed
+            }
+        } else if case .detecting = state {
+            objectCaptureSession.startCapturing()
+        }
+    }
+    
+    private func startReconstruction() throws {
         logger.debug("startReconstruction() called.")
 
         var configuration = PhotogrammetrySession.Configuration()
