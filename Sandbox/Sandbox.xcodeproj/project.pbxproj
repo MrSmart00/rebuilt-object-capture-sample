@@ -8,21 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		29529E772BC3FC6900FA5DAF /* SandboxApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29529E762BC3FC6900FA5DAF /* SandboxApp.swift */; };
-		29529E792BC3FC6900FA5DAF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29529E782BC3FC6900FA5DAF /* ContentView.swift */; };
 		29529E7B2BC3FC6A00FA5DAF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 29529E7A2BC3FC6A00FA5DAF /* Assets.xcassets */; };
 		29529E7E2BC3FC6A00FA5DAF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 29529E7D2BC3FC6A00FA5DAF /* Preview Assets.xcassets */; };
-		29529E852BC4035700FA5DAF /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29529E842BC4035700FA5DAF /* Model.swift */; };
-		29529E872BC408E700FA5DAF /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29529E862BC408E700FA5DAF /* Folder.swift */; };
+		29A0E5782BC5527D00C0E721 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 29A0E5772BC5527D00C0E721 /* AppFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		29529E732BC3FC6900FA5DAF /* Sandbox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sandbox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29529E762BC3FC6900FA5DAF /* SandboxApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SandboxApp.swift; sourceTree = "<group>"; };
-		29529E782BC3FC6900FA5DAF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		29529E7A2BC3FC6A00FA5DAF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		29529E7D2BC3FC6A00FA5DAF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		29529E842BC4035700FA5DAF /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
-		29529E862BC408E700FA5DAF /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		29529E882BC40E5900FA5DAF /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -31,6 +26,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29A0E5782BC5527D00C0E721 /* AppFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +38,7 @@
 			children = (
 				29529E752BC3FC6900FA5DAF /* Sandbox */,
 				29529E742BC3FC6900FA5DAF /* Products */,
+				29A0E5762BC5527D00C0E721 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,9 +55,6 @@
 			children = (
 				29529E762BC3FC6900FA5DAF /* SandboxApp.swift */,
 				29529E882BC40E5900FA5DAF /* info.plist */,
-				29529E782BC3FC6900FA5DAF /* ContentView.swift */,
-				29529E842BC4035700FA5DAF /* Model.swift */,
-				29529E862BC408E700FA5DAF /* Folder.swift */,
 				29529E7A2BC3FC6A00FA5DAF /* Assets.xcassets */,
 				29529E7C2BC3FC6A00FA5DAF /* Preview Content */,
 			);
@@ -73,6 +67,13 @@
 				29529E7D2BC3FC6A00FA5DAF /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		29A0E5762BC5527D00C0E721 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -91,6 +92,9 @@
 			dependencies = (
 			);
 			name = Sandbox;
+			packageProductDependencies = (
+				29A0E5772BC5527D00C0E721 /* AppFeature */,
+			);
 			productName = Sandbox;
 			productReference = 29529E732BC3FC6900FA5DAF /* Sandbox.app */;
 			productType = "com.apple.product-type.application";
@@ -145,10 +149,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				29529E852BC4035700FA5DAF /* Model.swift in Sources */,
-				29529E792BC3FC6900FA5DAF /* ContentView.swift in Sources */,
 				29529E772BC3FC6900FA5DAF /* SandboxApp.swift in Sources */,
-				29529E872BC408E700FA5DAF /* Folder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +359,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		29A0E5772BC5527D00C0E721 /* AppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppFeature;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 29529E6B2BC3FC6900FA5DAF /* Project object */;
 }
