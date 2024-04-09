@@ -6,26 +6,22 @@
 //
 
 import SwiftUI
-import RealityKit
+import Capture
 
 @MainActor
 public struct ContentView: View {
-    @State var model: Model = .instance
+    let model: Model = .instance
 
     public init() { }
 
     public var body: some View {
         VStack {
             if model.state == .capturing {
-                ObjectCaptureView(session: model.session)
+                CaptureView(model: model)
             } else {
                 Text("Loading...")
             }
         }
         .ignoresSafeArea()
     }
-}
-
-extension Model {
-    static let instance: Model = .init()
 }

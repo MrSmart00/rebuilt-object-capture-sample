@@ -11,9 +11,9 @@ import RealityKit
 
 @Observable
 @MainActor
-class Model {
+public class Model {
     let session: ObjectCaptureSession
-    var state: State? {
+    public var state: State? {
         didSet {
             guard state != oldValue else {
                 return
@@ -21,6 +21,8 @@ class Model {
             perform(with: state)
         }
     }
+    
+    public static let instance: Model = .init()
     
     init() {
         session = .init()
@@ -61,7 +63,7 @@ class Model {
 }
 
 extension Model {
-    enum State {
+    public enum State {
         case ready
         case capturing
     }
