@@ -21,10 +21,14 @@ public struct CaptureView: View {
             ObjectCaptureView(session: model.objectCaptureSession)
                 .ignoresSafeArea()
                 .id(model.objectCaptureSession.id)
-            if (!model.objectCaptureSession.isPaused && model.objectCaptureSession.cameraTracking == .normal) {
-                CaptureOverlayView {
-                    await model.start()
-                }
+            if model.isShowOverlay {
+                CaptureOverlayView(
+                    isCancelButtonDisabled: model.isCancelButtonDisabled,
+                    isCenterButtonDisabled: model.isCapturingStarted) {
+                        await model.start()
+                    } cancelHandler: {
+                        await model.cancel()
+                    }
             }
         }
     }

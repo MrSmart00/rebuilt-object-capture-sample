@@ -17,7 +17,31 @@ public class Model {
     public static let instance: Model = .init()
 
     private let folder = Folder()
-    var objectCaptureSession: ObjectCaptureSession
+    var objectCaptureSession: ObjectCaptureSession {
+        willSet {
+            detachListeners()
+        }
+        didSet {
+            guard objectCaptureSession != nil else { return }
+            attachListeners()
+        }
+    }
+
+    var isCancelButtonDisabled: Bool {
+        objectCaptureSession.state == .ready || objectCaptureSession.state == .initializing
+    }
+    var isShowOverlay: Bool {
+        (!objectCaptureSession.isPaused && objectCaptureSession.cameraTracking == .normal)
+    }
+    var isCapturingStarted: Bool {
+        switch objectCaptureSession.state {
+            case .initializing, .ready, .detecting:
+                return false
+            default:
+                return true
+        }
+    }
+    
     private var photogrammetrySession: PhotogrammetrySession?
     
     public var state: State? {
@@ -97,6 +121,10 @@ public class Model {
         }
     }
     
+    func cancel() {
+        objectCaptureSession.cancel()
+    }
+    
     private func startReconstruction() throws {
         logger.debug("startReconstruction() called.")
 
@@ -114,10 +142,6 @@ public class Model {
         logger.info("reset() called...")
         photogrammetrySession = nil
         objectCaptureSession = .init()
-//        showPreviewModel = false
-//        orbit = .orbit1
-//        orbitState = .initial
-//        isObjectFlipped = false
         state = .ready
     }
 
