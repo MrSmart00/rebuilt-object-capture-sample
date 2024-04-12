@@ -17,8 +17,30 @@ public class Model {
     public static let instance: Model = .init()
 
     private let folder = Folder()
-    var objectCaptureSession: ObjectCaptureSession
-    private var photogrammetrySession: PhotogrammetrySession?
+    var objectCaptureSession: ObjectCaptureSession {
+        willSet {
+            detachListeners()
+        }
+        didSet {
+            guard objectCaptureSession != nil else { return }
+            attachListeners()
+        }
+    }
+
+    var isCancelButtonDisabled: Bool {
+        objectCaptureSession.state == .ready || objectCaptureSession.state == .initializing
+    }
+    var isShowOverlay: Bool {
+        (!objectCaptureSession.isPaused && objectCaptureSession.cameraTracking == .normal)
+    }
+    var isCapturingStarted: Bool {
+        switch objectCaptureSession.state {
+            case .initializing, .ready, .detecting:
+                return false
+            default:
+                return true
+        }
+    }
     
     public var state: State? {
         didSet {
@@ -41,7 +63,7 @@ public class Model {
             startNewCapture()
         case .restart:
             reset()
-        case .capturing, .prepareToReconstruct, .reconstructing, .failed, .none:
+        case .start, .detecting, .capturing, .prepareToReconstruct, .reconstructing, .failed, .none:
             print(state)
         }
     }
@@ -92,35 +114,24 @@ public class Model {
             if !objectCaptureSession.startDetecting() {
                 self.state = .failed
             }
+            self.state = .detecting
         } else if case .detecting = state {
             objectCaptureSession.startCapturing()
+            self.state = .capturing
         }
     }
     
-    private func startReconstruction() throws {
-        logger.debug("startReconstruction() called.")
-
-        var configuration = PhotogrammetrySession.Configuration()
-        configuration.checkpointDirectory = folder.snapshotsFolder
-        photogrammetrySession = try PhotogrammetrySession(
-            input: folder.imagesFolder,
-            configuration: configuration
-        )
-
-        state = .reconstructing
+    func cancel() {
+        objectCaptureSession.cancel()
     }
-
+    
     private func reset() {
         logger.info("reset() called...")
-        photogrammetrySession = nil
         objectCaptureSession = .init()
-//        showPreviewModel = false
-//        orbit = .orbit1
-//        orbitState = .initial
-//        isObjectFlipped = false
         state = .ready
     }
 
+    @MainActor
     private func startNewCapture() {
         logger.log("startNewCapture() called...")
         if !ObjectCaptureSession.isSupported {
@@ -139,7 +150,7 @@ public class Model {
             logger.error("Got error starting session! \(String(describing: error))")
             state = .failed
         } else {
-            state = .capturing
+            state = .start
         }
     }
 }
@@ -147,6 +158,8 @@ public class Model {
 extension Model {
     public enum State {
         case ready
+        case start
+        case detecting
         case capturing
         case prepareToReconstruct
         case restart

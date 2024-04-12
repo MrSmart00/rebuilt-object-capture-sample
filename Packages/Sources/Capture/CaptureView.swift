@@ -21,9 +21,16 @@ public struct CaptureView: View {
             ObjectCaptureView(session: model.objectCaptureSession)
                 .ignoresSafeArea()
                 .id(model.objectCaptureSession.id)
-            if (!model.objectCaptureSession.isPaused && model.objectCaptureSession.cameraTracking == .normal) {
-                CaptureOverlayView {
-                    await model.start()
+            if model.isShowOverlay {
+                switch model.state {
+                case .start:
+                    ReadyingOverlayView(centerHandler: { await model.start() })
+                case .detecting:
+                    DetectingOverlayView(centerHandler: { await model.start() }, cancelHandler: { await model.cancel() })
+                case .capturing:
+                    CapturingOverlayView(cancelHandler: { await model.cancel() })
+                default:
+                    EmptyView()
                 }
             }
         }

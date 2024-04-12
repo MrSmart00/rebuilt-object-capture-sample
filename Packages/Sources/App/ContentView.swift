@@ -17,11 +17,16 @@ public struct ContentView: View {
 
     public var body: some View {
         VStack {
-            if model.state == .capturing {
-                CaptureView(model: model)
-            } else {
-                CircularProgressView()
-            }
+            CaptureView(model: model)
         }
+        .alert(isPresented: .init(get: {
+            model.state == .failed
+        }, set: { _ in }), content: {
+            Alert(
+                title: .init("Something Error!!!!"),
+                message: .init("please re-install the app."),
+                dismissButton: .destructive(.init("OK"))
+            )
+        })
     }
 }
