@@ -22,13 +22,16 @@ public struct CaptureView: View {
                 .ignoresSafeArea()
                 .id(model.objectCaptureSession.id)
             if model.isShowOverlay {
-                CaptureOverlayView(
-                    isCancelButtonDisabled: model.isCancelButtonDisabled,
-                    isCenterButtonDisabled: model.isCapturingStarted) {
-                        await model.start()
-                    } cancelHandler: {
-                        await model.cancel()
-                    }
+                switch model.state {
+                case .start:
+                    ReadyingOverlayView(centerHandler: { await model.start() })
+                case .detecting:
+                    DetectingOverlayView(centerHandler: { await model.start() }, cancelHandler: { await model.cancel() })
+                case .capturing:
+                    CapturingOverlayView(cancelHandler: { await model.cancel() })
+                default:
+                    EmptyView()
+                }
             }
         }
     }

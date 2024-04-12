@@ -42,8 +42,6 @@ public class Model {
         }
     }
     
-    private var photogrammetrySession: PhotogrammetrySession?
-    
     public var state: State? {
         didSet {
             guard state != oldValue else {
@@ -65,7 +63,7 @@ public class Model {
             startNewCapture()
         case .restart:
             reset()
-        case .capturing, .prepareToReconstruct, .reconstructing, .failed, .none:
+        case .start, .detecting, .capturing, .prepareToReconstruct, .reconstructing, .failed, .none:
             print(state)
         }
     }
@@ -116,8 +114,10 @@ public class Model {
             if !objectCaptureSession.startDetecting() {
                 self.state = .failed
             }
+            self.state = .detecting
         } else if case .detecting = state {
             objectCaptureSession.startCapturing()
+            self.state = .capturing
         }
     }
     
@@ -125,26 +125,13 @@ public class Model {
         objectCaptureSession.cancel()
     }
     
-    private func startReconstruction() throws {
-        logger.debug("startReconstruction() called.")
-
-        var configuration = PhotogrammetrySession.Configuration()
-        configuration.checkpointDirectory = folder.snapshotsFolder
-        photogrammetrySession = try PhotogrammetrySession(
-            input: folder.imagesFolder,
-            configuration: configuration
-        )
-
-        state = .reconstructing
-    }
-
     private func reset() {
         logger.info("reset() called...")
-        photogrammetrySession = nil
         objectCaptureSession = .init()
         state = .ready
     }
 
+    @MainActor
     private func startNewCapture() {
         logger.log("startNewCapture() called...")
         if !ObjectCaptureSession.isSupported {
@@ -163,7 +150,7 @@ public class Model {
             logger.error("Got error starting session! \(String(describing: error))")
             state = .failed
         } else {
-            state = .capturing
+            state = .start
         }
     }
 }
@@ -171,6 +158,8 @@ public class Model {
 extension Model {
     public enum State {
         case ready
+        case start
+        case detecting
         case capturing
         case prepareToReconstruct
         case restart

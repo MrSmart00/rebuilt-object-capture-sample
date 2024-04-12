@@ -17,11 +17,7 @@ public struct ContentView: View {
 
     public var body: some View {
         VStack {
-            if model.state == .capturing {
-                CaptureView(model: model)
-            } else {
-                CircularProgressView()
-            }
+            CaptureView(model: model)
         }
         .alert(isPresented: .init(get: {
             model.state == .failed
