@@ -14,10 +14,8 @@ struct CircleButtonStyle: ButtonStyle {
             .label
             .symbolRenderingMode(.monochrome)
             .frame(width: 44, height: 44)
+            .background(.ultraThinMaterial)
             .foregroundStyle(.blue)
-            .overlay(
-                RoundedRectangle(cornerRadius: 22)
-                    .stroke(Color.blue, lineWidth: 2)
-            )
+            .clipShape(Circle())
     }
 }

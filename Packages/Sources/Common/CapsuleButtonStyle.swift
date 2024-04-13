@@ -13,6 +13,7 @@ struct CapsuleButtonStyle: ButtonStyle {
         configuration
             .label
             .padding()
+            .frame(height: 44)
             .background(.blue)
             .foregroundColor(.white)
             .font(.body.bold())
