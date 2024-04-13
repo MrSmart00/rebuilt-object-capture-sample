@@ -1,5 +1,5 @@
 //
-//  Model.swift
+//  CapturingModel.swift
 //  Sandbox
 //
 //  Created by 日野森寛也 on 2024/04/08.
@@ -13,9 +13,9 @@ import Common
 
 @Observable
 @MainActor
-public class Model {
-    private let logger = Logger(subsystem: "Sandbox", category: .init(describing: Model.self))
-    public static let instance: Model = .init()
+public class CapturingModel {
+    private let logger = Logger(subsystem: "Sandbox", category: .init(describing: CapturingModel.self))
+    public static let instance: CapturingModel = .init()
 
     private var folder: Folder
     

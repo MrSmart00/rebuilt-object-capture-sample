@@ -11,7 +11,7 @@ import Common
 
 @MainActor
 public struct ContentView: View {
-    let model: Model = .instance
+    let model: CapturingModel = .instance
 
     public init() { }
 
