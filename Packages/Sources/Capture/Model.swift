@@ -9,14 +9,16 @@ import Foundation
 import SwiftUI
 import RealityKit
 import os
+import Common
 
 @Observable
 @MainActor
 public class Model {
-    private let logger = Logger(subsystem: "exam", category: "Model")
+    private let logger = Logger(subsystem: "Sandbox", category: .init(describing: Model.self))
     public static let instance: Model = .init()
 
-    private let folder = Folder()
+    private var folder: Folder
+    
     var objectCaptureSession: ObjectCaptureSession {
         willSet {
             detachListeners()
@@ -42,7 +44,7 @@ public class Model {
         }
     }
     
-    public var state: State? {
+    var state: CaptureModelState? {
         didSet {
             guard state != oldValue else {
                 return
@@ -51,25 +53,31 @@ public class Model {
         }
     }
     
+    var messageList: [String] = []
+    
+    private var tasks: [ Task<Void, Never> ] = []
+    private var currentFeedback: Set<Feedback> = []
+
+    typealias Feedback = ObjectCaptureSession.Feedback
+
     init() {
+        folder = .init()
         objectCaptureSession = .init()
         attachListeners()
         state = .ready
     }
     
-    private func perform(with state: State?) {
+    private func perform(with state: CaptureModelState?) {
         switch state {
         case .ready:
             startNewCapture()
         case .restart:
             reset()
-        case .start, .detecting, .capturing, .prepareToReconstruct, .reconstructing, .failed, .none:
+        case .start, .detecting, .capturing, .completad, .failed, .none:
             print(state)
         }
     }
     
-    private var tasks: [ Task<Void, Never> ] = []
-
     @MainActor
     private func attachListeners() {
         logger.debug("Attaching listeners...")
@@ -96,7 +104,7 @@ public class Model {
         logger.info("ObjectCaptureSession switched to state: \(String(describing: newState))")
         if case .completed = newState {
             logger.log("ObjectCaptureSession moved to .completed state.  Switch app model to reconstruction...")
-            state = .prepareToReconstruct
+            state = .completad
         } else if case let .failed(error) = newState {
             logger.error("ObjectCaptureSession moved to error state \(String(describing: error))...")
             if case ObjectCaptureSession.Error.cancelled = error {
@@ -107,26 +115,28 @@ public class Model {
         }
     }
 
-    func start() {
-        logger.debug("startDetecting() called.")
-        let state = objectCaptureSession.state
-        if case .ready = state {
-            if !objectCaptureSession.startDetecting() {
-                self.state = .failed
-            }
-            self.state = .detecting
-        } else if case .detecting = state {
-            objectCaptureSession.startCapturing()
-            self.state = .capturing
+    @MainActor
+    func startDetection() {
+        if !objectCaptureSession.startDetecting() {
+            self.state = .failed
         }
+        self.state = .detecting
     }
     
+    @MainActor
+    func startCapture() {
+        objectCaptureSession.startCapturing()
+        self.state = .capturing
+    }
+    
+    @MainActor
     func cancel() {
         objectCaptureSession.cancel()
     }
     
     private func reset() {
         logger.info("reset() called...")
+        folder = .init()
         objectCaptureSession = .init()
         state = .ready
     }
@@ -155,15 +165,3 @@ public class Model {
     }
 }
 
-extension Model {
-    public enum State {
-        case ready
-        case start
-        case detecting
-        case capturing
-        case prepareToReconstruct
-        case restart
-        case reconstructing
-        case failed
-    }
-}
