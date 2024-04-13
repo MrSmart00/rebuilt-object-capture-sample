@@ -17,7 +17,11 @@ public struct ContentView: View {
 
     public var body: some View {
         VStack {
-            CaptureView(model: model)
+            if model.isReadyToCapture {
+                CaptureView(model: model)
+            } else {
+                CircularProgressView()
+            }
         }
     }
 }

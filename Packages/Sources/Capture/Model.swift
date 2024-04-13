@@ -32,7 +32,7 @@ public class Model {
     var isCancelButtonDisabled: Bool {
         objectCaptureSession.state == .ready || objectCaptureSession.state == .initializing
     }
-    var isReadyToCapture = false
+    public var isReadyToCapture = false
     
     var isShowOverlay: Bool {
         (!objectCaptureSession.isPaused && objectCaptureSession.cameraTracking == .normal)

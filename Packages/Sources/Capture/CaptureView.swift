@@ -18,24 +18,20 @@ public struct CaptureView: View {
 
     public var body: some View {
         ZStack {
-            if model.isReadyToCapture {
-                ObjectCaptureView(session: model.objectCaptureSession)
-                    .ignoresSafeArea()
-                    .id(model.objectCaptureSession.id)
-                if model.isShowOverlay {
-                    switch model.state {
-                    case .start:
-                        ReadyingOverlayView(centerHandler: { await model.startDetection() })
-                    case .detecting:
-                        DetectingOverlayView(centerHandler: { await model.startCapture() }, cancelHandler: { await model.cancel() })
-                    case .capturing:
-                        CapturingOverlayView(cancelHandler: { await model.cancel() })
-                    default:
-                        EmptyView()
-                    }
+            ObjectCaptureView(session: model.objectCaptureSession)
+                .ignoresSafeArea()
+                .id(model.objectCaptureSession.id)
+            if model.isShowOverlay {
+                switch model.state {
+                case .start:
+                    ReadyingOverlayView(centerHandler: { await model.startDetection() })
+                case .detecting:
+                    DetectingOverlayView(centerHandler: { await model.startCapture() }, cancelHandler: { await model.cancel() })
+                case .capturing:
+                    CapturingOverlayView(cancelHandler: { await model.cancel() })
+                default:
+                    EmptyView()
                 }
-            } else {
-                CircularProgressView()
             }
         }
         .alert(isPresented: .init(get: {
