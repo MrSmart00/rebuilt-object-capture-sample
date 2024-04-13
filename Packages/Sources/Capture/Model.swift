@@ -24,7 +24,6 @@ public class Model {
             detachListeners()
         }
         didSet {
-            guard objectCaptureSession != nil else { return }
             attachListeners()
         }
     }
@@ -55,10 +54,7 @@ public class Model {
         }
     }
     
-    var messageList: [String] = []
-    
     private var tasks: [ Task<Void, Never> ] = []
-    private var currentFeedback: Set<Feedback> = []
 
     typealias Feedback = ObjectCaptureSession.Feedback
 
@@ -97,7 +93,15 @@ public class Model {
                 }
             }
         })
-        
+
+        tasks.append(Task { [weak self] in
+            for await newState in session.userCompletedScanPassUpdates {
+                if newState {
+                    self?.state = .completad
+                }
+            }
+        })
+
         tasks.append(Task<Void, Never> { [weak self] in
             for await newState in session.stateUpdates {
                 self?.logger.debug("Task got async state change to: \(String(describing: newState))")
@@ -134,8 +138,9 @@ public class Model {
     func startDetection() {
         if !objectCaptureSession.startDetecting() {
             self.state = .failed
+        } else {
+            self.state = .detecting
         }
-        self.state = .detecting
     }
     
     @MainActor
