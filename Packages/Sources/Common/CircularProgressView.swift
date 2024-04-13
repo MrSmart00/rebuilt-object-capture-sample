@@ -13,15 +13,21 @@ public struct CircularProgressView: View {
     public init() { }
 
     public var body: some View {
-        VStack {
-            Spacer()
-            ZStack {
+        ZStack {
+            VStack {
+                Text("Now Prepearing...")
+                    .padding(.top, 100)
+            }
+            VStack {
                 Spacer()
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: colorScheme == .light ? .black : .white))
+                ZStack {
+                    Spacer()
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: colorScheme == .light ? .black : .white))
+                    Spacer()
+                }
                 Spacer()
             }
-            Spacer()
         }
     }
 }
