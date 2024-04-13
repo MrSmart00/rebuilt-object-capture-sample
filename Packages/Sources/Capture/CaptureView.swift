@@ -24,9 +24,9 @@ public struct CaptureView: View {
             if model.isShowOverlay {
                 switch model.state {
                 case .start:
-                    ReadyingOverlayView(centerHandler: { await model.start() })
+                    ReadyingOverlayView(centerHandler: { await model.startDetection() })
                 case .detecting:
-                    DetectingOverlayView(centerHandler: { await model.start() }, cancelHandler: { await model.cancel() })
+                    DetectingOverlayView(centerHandler: { await model.startCapture() }, cancelHandler: { await model.cancel() })
                 case .capturing:
                     CapturingOverlayView(cancelHandler: { await model.cancel() })
                 default:
@@ -34,5 +34,14 @@ public struct CaptureView: View {
                 }
             }
         }
+        .alert(isPresented: .init(get: {
+            model.state == .failed
+        }, set: { _ in }), content: {
+            Alert(
+                title: .init("Something Error!!!!"),
+                message: .init("please re-install the app."),
+                dismissButton: .destructive(.init("OK"))
+            )
+        })
     }
 }
