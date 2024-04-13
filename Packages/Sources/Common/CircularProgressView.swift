@@ -29,6 +29,7 @@ public struct CircularProgressView: View {
                 Spacer()
             }
         }
+        .frame(maxWidth: .infinity)
     }
 }
 

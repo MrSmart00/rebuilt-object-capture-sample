@@ -11,6 +11,7 @@ import Common
 
 @MainActor
 public struct ContentView: View {
+    @State var isOpenFileView = false
     let model: CapturingModel = .instance
 
     public init() { }
@@ -22,6 +23,14 @@ public struct ContentView: View {
             } else {
                 CircularProgressView()
             }
+        }
+        .overlay {
+            FileOpenOverlayView { @MainActor in
+                isOpenFileView = true
+            }
+        }
+        .sheet(isPresented: $isOpenFileView) {
+            Text("Hoge")
         }
     }
 }
