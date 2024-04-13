@@ -8,11 +8,14 @@
 import SwiftUI
 import Capture
 import Common
+import FileBrowser
+import Folder
 
 @MainActor
 public struct ContentView: View {
     @State var isOpenFileView = false
     let model: CapturingModel = .instance
+    let folder = Folder()
 
     public init() { }
 
@@ -30,7 +33,7 @@ public struct ContentView: View {
             }
         }
         .sheet(isPresented: $isOpenFileView) {
-            Text("Hoge")
+            DocumentBrowser(startingDir: folder.rootScanFolder)
         }
     }
 }
