@@ -25,7 +25,7 @@ public struct CaptureView: View {
                     if model.isShowOverlay {
                         switch model.state {
                         case .start:
-                            ReadyingOverlayView { await model.startDetection() }
+                            StartingOverlayView { await model.startDetection() }
                         case .detecting:
                             DetectingOverlayView { await model.startCapture() } cancelHandler: { await model.cancel() }
                         case .capturing:

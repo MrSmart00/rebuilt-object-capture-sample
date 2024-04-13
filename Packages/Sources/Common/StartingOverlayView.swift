@@ -1,5 +1,5 @@
 //
-//  ReadyingOverlayView.swift
+//  StartingOverlayView.swift
 //
 //
 //  Created by 日野森寛也 on 2024/04/12.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct ReadyingOverlayView: View {
+public struct StartingOverlayView: View {
     let centerHandler: @Sendable () async -> Void
     
     public init(centerHandler: @escaping @Sendable () async -> Void) {
@@ -27,7 +27,6 @@ public struct ReadyingOverlayView: View {
                         Text("Detecting")
                     })
                 .buttonStyle(CapsuleButtonStyle())
-
                 Spacer()
             }
         }
@@ -35,5 +34,5 @@ public struct ReadyingOverlayView: View {
 }
 
 #Preview {
-    ReadyingOverlayView(centerHandler: { })
+    StartingOverlayView { }
 }
