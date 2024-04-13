@@ -8,10 +8,14 @@
 import SwiftUI
 import Capture
 import Common
+import FileBrowser
+import Folder
 
 @MainActor
 public struct ContentView: View {
+    @State var isOpenFileView = false
     let model: CapturingModel = .instance
+    let folder = Folder()
 
     public init() { }
 
@@ -22,6 +26,14 @@ public struct ContentView: View {
             } else {
                 CircularProgressView()
             }
+        }
+        .overlay {
+            FileOpenOverlayView { @MainActor in
+                isOpenFileView = true
+            }
+        }
+        .sheet(isPresented: $isOpenFileView) {
+            DocumentBrowser(startingDir: folder.rootScanFolder)
         }
     }
 }

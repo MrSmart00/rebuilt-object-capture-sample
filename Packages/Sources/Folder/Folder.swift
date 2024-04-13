@@ -8,15 +8,15 @@
 import Foundation
 import os
 
-struct Folder {
+public struct Folder {
     static let logger = Logger(subsystem: "Sandbox", category: "Folder")
 
-    let rootScanFolder: URL
-    let imagesFolder: URL
-    let snapshotsFolder: URL
-    let modelsFolder: URL
+    public let rootScanFolder: URL
+    public let imagesFolder: URL
+    public let snapshotsFolder: URL
+    public let modelsFolder: URL
     
-    init() {
+    public init() {
         let newFolder = Self.createNewScanDirectory()!
         rootScanFolder = newFolder
 

@@ -10,6 +10,7 @@ import SwiftUI
 import RealityKit
 import os
 import Common
+import Folder
 
 @Observable
 @MainActor

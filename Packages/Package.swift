@@ -19,10 +19,19 @@ let package = Package(
             name: "App",
             dependencies: [
                 "Capture",
-                "Common"
+                "Common",
+                "FileBrowser"
             ]
         ),
-        .target(name: "Capture"),
-        .target(name: "Common")
+        .target(name: "Folder"),
+        .target(
+            name: "Capture",
+            dependencies: ["Folder"]
+        ),
+        .target(name: "Common"),
+        .target(
+            name: "FileBrowser",
+            dependencies: ["Folder"]
+        )
     ]
 )
