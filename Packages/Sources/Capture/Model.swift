@@ -32,6 +32,8 @@ public class Model {
     var isCancelButtonDisabled: Bool {
         objectCaptureSession.state == .ready || objectCaptureSession.state == .initializing
     }
+    public var isReadyToCapture = false
+    
     var isShowOverlay: Bool {
         (!objectCaptureSession.isPaused && objectCaptureSession.cameraTracking == .normal)
     }
@@ -82,6 +84,19 @@ public class Model {
     private func attachListeners() {
         logger.debug("Attaching listeners...")
         let session = self.objectCaptureSession
+        
+        tasks.append(Task { [weak self] in
+            for await newState in session.cameraTrackingUpdates {
+                self?.logger.debug("Task got async state change to (cameraTrackingUpdates): \(String(describing: newState))")
+                if case let .limited(reason) = newState, reason != .initializing {
+                    if reason == .initializing {
+                        self?.isReadyToCapture = false
+                    } else {
+                        self?.isReadyToCapture = true
+                    }
+                }
+            }
+        })
         
         tasks.append(Task<Void, Never> { [weak self] in
             for await newState in session.stateUpdates {
