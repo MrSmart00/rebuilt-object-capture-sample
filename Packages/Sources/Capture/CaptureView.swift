@@ -10,9 +10,9 @@ import RealityKit
 import Common
 
 public struct CaptureView: View {
-    @State var model: Model
+    @State var model: CapturingModel
     
-    public init(model: Model) {
+    public init(model: CapturingModel) {
         self.model = model
     }
 
