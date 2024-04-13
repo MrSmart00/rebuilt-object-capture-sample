@@ -21,18 +21,22 @@ public struct CaptureView: View {
             ObjectCaptureView(session: model.objectCaptureSession)
                 .ignoresSafeArea()
                 .id(model.objectCaptureSession.id)
-            if model.isShowOverlay {
-                switch model.state {
-                case .start:
-                    ReadyingOverlayView(centerHandler: { await model.startDetection() })
-                case .detecting:
-                    DetectingOverlayView(centerHandler: { await model.startCapture() }, cancelHandler: { await model.cancel() })
-                case .capturing:
-                    CapturingOverlayView(cancelHandler: { await model.cancel() })
-                default:
-                    EmptyView()
+                .overlay {
+                    if model.isShowOverlay {
+                        switch model.state {
+                        case .start:
+                            ReadyingOverlayView { await model.startDetection() }
+                        case .detecting:
+                            DetectingOverlayView { await model.startCapture() } cancelHandler: { await model.cancel() }
+                        case .capturing:
+                            CapturingOverlayView { await model.cancel() }
+                        case .completad:
+                            CompletedOverlayView { await model.cancel() }
+                        default:
+                            EmptyView()
+                        }
+                    }
                 }
-            }
         }
         .alert(isPresented: .init(get: {
             model.state == .failed
