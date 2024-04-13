@@ -43,8 +43,9 @@ public struct CaptureView: View {
         }, set: { _ in }), content: {
             Alert(
                 title: .init("Something Error!!!!"),
-                message: .init("please re-install the app."),
-                dismissButton: .destructive(.init("OK"))
+                dismissButton: .destructive(.init("OK"), action: {
+                    model.cancel()
+                })
             )
         })
     }
