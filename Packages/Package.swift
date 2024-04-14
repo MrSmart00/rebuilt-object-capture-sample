@@ -21,7 +21,8 @@ let package = Package(
                 "Capture",
                 "Reconstruction",
                 "Common",
-                "FileBrowser"
+                "FileBrowser",
+                "Viewer"
             ]
         ),
         .target(name: "Folder"),
@@ -33,6 +34,7 @@ let package = Package(
             name: "Reconstruction",
             dependencies: ["Folder"]
         ),
+        .target(name: "Viewer"),
         .target(name: "Common"),
         .target(
             name: "FileBrowser",
