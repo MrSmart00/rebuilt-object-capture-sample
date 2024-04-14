@@ -14,6 +14,7 @@ import Folder
 @MainActor
 public struct ContentView: View {
     @State var isOpenFileView = false
+    @State var selectedItemURL: URL?
     let model: CapturingModel = .instance
     let folder = Folder()
 
@@ -33,7 +34,10 @@ public struct ContentView: View {
             }
         }
         .sheet(isPresented: $isOpenFileView) {
-            DocumentBrowser(startingDir: folder.rootScanFolder)
+            DocumentBrowser(startingDir: folder.rootScanFolder, selectedItem: $selectedItemURL)
+        }
+        .onChange(of: selectedItemURL) {
+            print(selectedItemURL)
         }
     }
 }
