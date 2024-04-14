@@ -43,7 +43,7 @@ public struct ContentView: View {
         .onChange(of: captureModel.isReadyToReconstruction == true, {
             isReconstruction = true
         })
-        .sheet(isPresented: $isReconstruction, onDismiss: {
+        .sheet(isPresented: $isReconstruction, onDismiss: { @MainActor in
             captureModel.reset()
         }, content: {
             ReconstructionProgressView(model: .instance)
@@ -53,7 +53,7 @@ public struct ContentView: View {
                 isShowViewer = true
             }
         }
-        .sheet(isPresented: $isShowViewer, onDismiss: {
+        .sheet(isPresented: $isShowViewer, onDismiss: { @MainActor in
             captureModel.reset()
         }, content: {
             ModelViewer(url: selectedItemURL!)

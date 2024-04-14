@@ -8,6 +8,7 @@
 import Foundation
 import os
 
+@MainActor
 public struct Folder {
     static let logger = Logger(subsystem: "Sandbox", category: "Folder")
 
