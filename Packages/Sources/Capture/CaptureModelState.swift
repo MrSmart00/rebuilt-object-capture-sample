@@ -12,6 +12,7 @@ enum CaptureModelState {
     case start
     case detecting
     case capturing
+    case finish
     case completad
     case restart
     case failed

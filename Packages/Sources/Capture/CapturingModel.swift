@@ -15,10 +15,18 @@ import Folder
 @Observable
 @MainActor
 public class CapturingModel {
-    private let logger = Logger(subsystem: "Sandbox", category: .init(describing: CapturingModel.self))
-    public static let instance: CapturingModel = .init()
+    @ObservationIgnored private let logger = Logger(subsystem: "Sandbox", category: .init(describing: CapturingModel.self))
+    @ObservationIgnored public static let instance: CapturingModel = .init()
+    @ObservationIgnored private var folder: Folder
+    @ObservationIgnored private var orbit: Orbit = .orbit1
+    @ObservationIgnored private var tasks: [ Task<Void, Never> ] = []
+    @ObservationIgnored private var scanPassState: ScanPassState?
 
-    private var folder: Folder
+    enum ScanPassState {
+        case nonFlippable
+        case flippable
+        case single
+    }
     
     var objectCaptureSession: ObjectCaptureSession {
         willSet {
@@ -29,22 +37,11 @@ public class CapturingModel {
         }
     }
 
-    var isCancelButtonDisabled: Bool {
-        objectCaptureSession.state == .ready || objectCaptureSession.state == .initializing
-    }
     public var isReadyToCapture = false
     public var isReadyToReconstruction = false
     
     var isShowOverlay: Bool {
-        (!objectCaptureSession.isPaused && objectCaptureSession.cameraTracking == .normal)
-    }
-    var isCapturingStarted: Bool {
-        switch objectCaptureSession.state {
-            case .initializing, .ready, .detecting:
-                return false
-            default:
-                return true
-        }
+        objectCaptureSession.cameraTracking == .normal
     }
     
     var state: CaptureModelState? {
@@ -56,10 +53,6 @@ public class CapturingModel {
         }
     }
     
-    private var tasks: [ Task<Void, Never> ] = []
-
-    typealias Feedback = ObjectCaptureSession.Feedback
-
     init() {
         folder = .init()
         objectCaptureSession = .init()
@@ -82,11 +75,10 @@ public class CapturingModel {
         case .completad:
             isReadyToReconstruction = true
         default:
-            print(state)
+            break
         }
     }
     
-    @MainActor
     private func attachListeners() {
         logger.debug("Attaching listeners...")
         let session = self.objectCaptureSession
@@ -107,7 +99,17 @@ public class CapturingModel {
         tasks.append(Task { [weak self] in
             for await newState in session.userCompletedScanPassUpdates {
                 if newState {
-                    self?.finishCapture()
+                    self?.objectCaptureSession.pause()
+                    switch self?.scanPassState {
+                    case .nonFlippable where self?.orbit != .max:
+                        self?.beginNewScanPass()
+                    case .flippable where self?.orbit != .max:
+                        self?.beginNewScanPassAfterFlip()
+                    case _ where self?.orbit == .max:
+                        self?.finishCapture()
+                    default:
+                        self?.state = .finish
+                    }
                 }
             }
         })
@@ -144,7 +146,6 @@ public class CapturingModel {
         }
     }
 
-    @MainActor
     func startDetection() {
         if !objectCaptureSession.startDetecting() {
             self.state = .failed
@@ -153,18 +154,44 @@ public class CapturingModel {
         }
     }
     
-    @MainActor
     func startCapture() {
         objectCaptureSession.startCapturing()
         self.state = .capturing
     }
     
-    @MainActor
-    private func finishCapture() {
+    func beginNewScanPass() {
+        scanPassState = .nonFlippable
+        if orbit != .max {
+            if objectCaptureSession.isPaused {
+                objectCaptureSession.resume()
+            }
+            objectCaptureSession.beginNewScanPass()
+            state = .capturing
+            orbit = orbit.next()
+        } else {
+            finishCapture()
+        }
+    }
+    
+    func beginNewScanPassAfterFlip() {
+        scanPassState = .flippable
+        if orbit != .max {
+            if objectCaptureSession.isPaused {
+                objectCaptureSession.resume()
+            }
+            objectCaptureSession.beginNewScanPassAfterFlip()
+            state = .capturing
+            orbit = orbit.next()
+        } else {
+            finishCapture()
+        }
+    }
+    
+    func finishCapture() {
+        scanPassState = .single
         objectCaptureSession.finish()
     }
     
-    @MainActor
     func cancel() {
         objectCaptureSession.cancel()
     }
@@ -177,7 +204,6 @@ public class CapturingModel {
         state = .ready
     }
 
-    @MainActor
     private func startNewCapture() {
         logger.log("startNewCapture() called...")
         if !ObjectCaptureSession.isSupported {
