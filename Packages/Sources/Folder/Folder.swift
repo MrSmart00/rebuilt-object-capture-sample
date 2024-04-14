@@ -11,14 +11,22 @@ import os
 public struct Folder {
     static let logger = Logger(subsystem: "Sandbox", category: "Folder")
 
-    public let rootScanFolder: URL
+    public let rootScanFolder: URL = {
+        let documentsFolder = try! FileManager.default.url(
+            for: .documentDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        return documentsFolder.appendingPathComponent("Scans/", isDirectory: true)
+    }()
+    
     public let imagesFolder: URL
     public let snapshotsFolder: URL
     public let modelsFolder: URL
     
     public init() {
-        let newFolder = Self.createNewScanDirectory()!
-        rootScanFolder = newFolder
+        let newFolder = Self.createNewScanDirectory(rootScanFolder)!
 
         imagesFolder = newFolder.appendingPathComponent("Images/")
         Self.createDirectoryRecursively(imagesFolder)
@@ -30,28 +38,10 @@ public struct Folder {
         Self.createDirectoryRecursively(modelsFolder)
     }
     
-    static func createNewScanDirectory() -> URL? {
-        let rootScansFolder: URL? = {
-            guard let documentsFolder = try? FileManager.default.url(
-                for: .documentDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: false
-            ) else {
-                return nil
-            }
-            return documentsFolder.appendingPathComponent("Scans/", isDirectory: true)
-        }()
-        
-        guard let capturesFolder = rootScansFolder else {
-            logger.error("Can't get user document dir!")
-            return nil
-        }
-
+    static func createNewScanDirectory(_ root: URL) -> URL? {
         let formatter = ISO8601DateFormatter()
         let timestamp = formatter.string(from: Date())
-        let newCaptureDir = capturesFolder
-            .appendingPathComponent(timestamp, isDirectory: true)
+        let newCaptureDir = root.appendingPathComponent(timestamp, isDirectory: true)
 
         logger.log("Creating capture path: \"\(String(describing: newCaptureDir))\"")
         let capturePath = newCaptureDir.path
@@ -70,7 +60,7 @@ public struct Folder {
 
         return newCaptureDir
     }
-    
+
     static func createDirectoryRecursively(_ outputDir: URL) {
         guard outputDir.isFileURL else {
             return

@@ -72,7 +72,7 @@ public class CapturingModel {
             startNewCapture()
         case .restart:
             reset()
-        case .start, .detecting, .capturing, .completad, .failed, .none:
+        default:
             print(state)
         }
     }
@@ -98,7 +98,7 @@ public class CapturingModel {
         tasks.append(Task { [weak self] in
             for await newState in session.userCompletedScanPassUpdates {
                 if newState {
-                    self?.state = .completad
+                    self?.finishCapture()
                 }
             }
         })
@@ -148,6 +148,11 @@ public class CapturingModel {
     func startCapture() {
         objectCaptureSession.startCapturing()
         self.state = .capturing
+    }
+    
+    @MainActor
+    private func finishCapture() {
+        objectCaptureSession.finish()
     }
     
     @MainActor
