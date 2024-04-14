@@ -11,11 +11,13 @@ import Common
 import FileBrowser
 import Folder
 import Reconstruction
+import Viewer
 
 @MainActor
 public struct ContentView: View {
     @State var isOpenFileView = false
     @State var selectedItemURL: URL?
+    @State var isShowViewer = false
     @State var isReconstruction = false
     let captureModel: CapturingModel = .instance
     let folder = Folder()
@@ -36,7 +38,7 @@ public struct ContentView: View {
             }
         }
         .sheet(isPresented: $isOpenFileView) {
-            DocumentBrowser(startingDir: folder.rootScanFolder, selectedItem: $selectedItemURL)
+            DocumentBrowser(startingDir: folder.modelsFolder, selectedItem: $selectedItemURL)
         }
         .onChange(of: captureModel.isReadyToReconstruction == true, {
             isReconstruction = true
@@ -47,7 +49,14 @@ public struct ContentView: View {
             ReconstructionProgressView(model: .instance)
         })
         .onChange(of: selectedItemURL) {
-            print(selectedItemURL)
+            if selectedItemURL != nil {
+                isShowViewer = true
+            }
         }
+        .sheet(isPresented: $isShowViewer, onDismiss: {
+            captureModel.reset()
+        }, content: {
+            ModelViewer(url: selectedItemURL!)
+        })
     }
 }
