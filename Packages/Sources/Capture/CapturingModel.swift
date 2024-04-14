@@ -169,7 +169,7 @@ public class CapturingModel {
         objectCaptureSession.cancel()
     }
     
-    private func reset() {
+    public func reset() {
         logger.info("reset() called...")
         folder.resetFolder(with: folder.imagesFolder)
         folder.resetFolder(with: folder.snapshotsFolder)
