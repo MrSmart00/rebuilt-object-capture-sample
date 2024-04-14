@@ -10,20 +10,22 @@ import Capture
 import Common
 import FileBrowser
 import Folder
+import Reconstruction
 
 @MainActor
 public struct ContentView: View {
     @State var isOpenFileView = false
     @State var selectedItemURL: URL?
-    let model: CapturingModel = .instance
+    @State var isReconstruction = false
+    let captureModel: CapturingModel = .instance
     let folder = Folder()
 
     public init() { }
 
     public var body: some View {
         VStack {
-            if model.isReadyToCapture {
-                CaptureView(model: model)
+            if captureModel.isReadyToCapture {
+                CaptureView(model: captureModel)
             } else {
                 CircularProgressView()
             }
@@ -35,6 +37,12 @@ public struct ContentView: View {
         }
         .sheet(isPresented: $isOpenFileView) {
             DocumentBrowser(startingDir: folder.rootScanFolder, selectedItem: $selectedItemURL)
+        }
+        .onChange(of: captureModel.isReadyToReconstruction == true, {
+            isReconstruction = true
+        })
+        .sheet(isPresented: $isReconstruction) {
+            ReconstructionProgressView(model: .instance)
         }
         .onChange(of: selectedItemURL) {
             print(selectedItemURL)
