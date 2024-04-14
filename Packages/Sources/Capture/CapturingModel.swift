@@ -33,6 +33,7 @@ public class CapturingModel {
         objectCaptureSession.state == .ready || objectCaptureSession.state == .initializing
     }
     public var isReadyToCapture = false
+    public var isReadyToReconstruction = false
     
     var isShowOverlay: Bool {
         (!objectCaptureSession.isPaused && objectCaptureSession.cameraTracking == .normal)
@@ -66,12 +67,20 @@ public class CapturingModel {
         state = .ready
     }
     
+    deinit {
+        Task {
+            await detachListeners()
+        }
+    }
+
     private func perform(with state: CaptureModelState?) {
         switch state {
         case .ready:
             startNewCapture()
         case .restart:
             reset()
+        case .completad:
+            isReadyToReconstruction = true
         default:
             print(state)
         }
@@ -162,7 +171,8 @@ public class CapturingModel {
     
     private func reset() {
         logger.info("reset() called...")
-        folder = .init()
+        folder.resetFolder(with: folder.imagesFolder)
+        folder.resetFolder(with: folder.snapshotsFolder)
         objectCaptureSession = .init()
         state = .ready
     }
@@ -177,6 +187,8 @@ public class CapturingModel {
         configuration.checkpointDirectory = folder.snapshotsFolder
         configuration.isOverCaptureEnabled = true
         logger.log("Enabling overcapture...")
+        folder.resetFolder(with: folder.imagesFolder)
+        folder.resetFolder(with: folder.snapshotsFolder)
         objectCaptureSession.start(
             imagesDirectory: folder.imagesFolder,
             configuration: configuration

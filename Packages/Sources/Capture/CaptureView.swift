@@ -30,8 +30,6 @@ public struct CaptureView: View {
                             DetectingOverlayView { await model.startCapture() } cancelHandler: { await model.cancel() }
                         case .capturing:
                             CapturingOverlayView { await model.cancel() }
-                        case .completad:
-                            CompletedOverlayView { await model.cancel() }
                         default:
                             EmptyView()
                         }

@@ -38,16 +38,19 @@ public struct Folder {
         Self.createDirectoryRecursively(modelsFolder)
     }
     
+    public func resetFolder(with url: URL) {
+        let fileManager = FileManager()
+        try? fileManager.removeItem(at: url)
+    }
+    
     static func createNewScanDirectory(_ root: URL) -> URL? {
-        let formatter = ISO8601DateFormatter()
-        let timestamp = formatter.string(from: Date())
-        let newCaptureDir = root.appendingPathComponent(timestamp, isDirectory: true)
-
-        logger.log("Creating capture path: \"\(String(describing: newCaptureDir))\"")
-        let capturePath = newCaptureDir.path
+        logger.log("Creating capture path: \"\(String(describing: root))\"")
+        let capturePath = root.path
         do {
-            try FileManager.default.createDirectory(atPath: capturePath,
-                                                    withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(
+                atPath: capturePath,
+                withIntermediateDirectories: true
+            )
         } catch {
             logger.error("Failed to create capturepath=\"\(capturePath)\" error=\(String(describing: error))")
             return nil
@@ -57,8 +60,7 @@ public struct Folder {
         guard exists && isDir.boolValue else {
             return nil
         }
-
-        return newCaptureDir
+        return root
     }
 
     static func createDirectoryRecursively(_ outputDir: URL) {
