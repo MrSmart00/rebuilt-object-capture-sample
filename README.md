@@ -1,4 +1,4 @@
-# Object Capture Sample Tweaks
+# Rebuilt Object Capture Sample
 
 <img src="https://img.shields.io/badge/-xcode-000000.svg?logo=Xcode&style=for-the-badge"> <img src="https://img.shields.io/badge/-swift-000000.svg?logo=Swift&style=for-the-badge">
   
