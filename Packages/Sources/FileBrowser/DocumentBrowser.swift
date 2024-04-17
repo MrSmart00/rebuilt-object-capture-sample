@@ -18,10 +18,10 @@ public struct DocumentBrowser: UIViewControllerRepresentable {
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator($selectedItem)
+        Coordinator(self)
     }
     
-    public func makeUIViewController(context: UIViewControllerRepresentableContext<DocumentBrowser>) -> UIDocumentPickerViewController {
+    public func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
         let controller = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.item])
         controller.directoryURL = startingDir
         controller.delegate = context.coordinator
@@ -30,17 +30,17 @@ public struct DocumentBrowser: UIViewControllerRepresentable {
 
     public func updateUIViewController(
         _ uiViewController: UIDocumentPickerViewController,
-        context: UIViewControllerRepresentableContext<DocumentBrowser>) {}
+        context: Context) {}
     
     public class Coordinator: NSObject, UIDocumentPickerDelegate {
-        @Binding var selectedItem: URL?
+        let parent: DocumentBrowser
         
-        init(_ selectedItem: Binding<URL?>) {
-            self._selectedItem = selectedItem
+        init(_ parent: DocumentBrowser) {
+            self.parent = parent
         }
         
         public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            selectedItem = urls.first
+            parent.selectedItem = urls.first
         }
     }
 }
