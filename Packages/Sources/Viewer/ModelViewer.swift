@@ -41,18 +41,16 @@ private struct ARQuickLookController: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> ARQuickLookController.Coordinator {
-        return Coordinator(parent: self, dismissTrigger: $dismissTrigger)
+        return Coordinator(parent: self)
     }
 
     func updateUIViewController(_ uiViewController: QLPreviewControllerWrapper, context: Context) {}
 
     class Coordinator: NSObject, QLPreviewControllerDataSource, QLPreviewControllerDelegate {
         let parent: ARQuickLookController
-        @Binding var dismissTrigger: Bool
 
-        init(parent: ARQuickLookController, dismissTrigger: Binding<Bool>) {
+        init(parent: ARQuickLookController) {
             self.parent = parent
-            self._dismissTrigger = dismissTrigger
         }
 
         func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
@@ -65,7 +63,7 @@ private struct ARQuickLookController: UIViewControllerRepresentable {
 
         func previewControllerWillDismiss(_ controller: QLPreviewController) {
             ARQuickLookController.logger.log("Exiting ARQL ...")
-            dismissTrigger = true
+            parent.dismissTrigger = true
         }
     }
 }
